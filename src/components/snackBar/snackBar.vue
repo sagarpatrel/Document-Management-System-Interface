@@ -15,13 +15,12 @@
       </div>
       <div>
         <v-btn
-          dark
-          text
+          icon
           @click="closeSnackBar"
           class="px-0 ml-2"
           v-if="!$store.state.showMenu"
         >
-          <v-icon color="white"> mdi-close-circle-outline </v-icon>
+          <v-icon color=""> mdi-close-circle-outline </v-icon>
         </v-btn>
       </div>
     </div>

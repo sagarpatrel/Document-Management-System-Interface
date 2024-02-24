@@ -7,6 +7,7 @@
 
 <script>
 import snackBar from "./components/snackBar/snackBar.vue";
+import "vuetify/dist/vuetify.min.css";
 
 export default {
   name: "App",
