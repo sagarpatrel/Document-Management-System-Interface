@@ -41,7 +41,12 @@ const routes = [
                 meta: { requiresAuth: true, title: "document" },
                 component: () => import('@/views/UploadDocuments.vue')
             },
-
+            {
+                path: '/add-user',
+                name: 'add-user',
+                meta: { requiresAuth: true, title: "Add User" },
+                component: () => import('@/views/userCreation.vue')
+            },
         ]
     }
 ];

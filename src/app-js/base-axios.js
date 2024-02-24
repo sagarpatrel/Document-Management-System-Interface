@@ -17,7 +17,6 @@ const authToken = {
      * @param token
      */
     setAccessToken: (access_token, refresh_token) => {
-
         localStorage.setItem("token", access_token);
         localStorage.setItem("rtoken", refresh_token);
     },

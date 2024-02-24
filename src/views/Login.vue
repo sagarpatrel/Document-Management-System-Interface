@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 export default {
   name: "LoginPage",
   data() {
@@ -53,6 +54,9 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      snackBar: "snackBar/showToast",
+    }),
     sendOtp() {
       if (this.$refs.login.validate()) {
         if (!this.otp) {
@@ -62,6 +66,11 @@ export default {
           const onSuccess = () => {
             this.loading = false;
             this.show_otp = true;
+            this.snackBar({
+              message: "OTP sent successfully",
+              color: "success",
+              timeout: 4500,
+            });
             // this.send_otp_btn = false;
           };
           const onFailure = () => {};
@@ -76,6 +85,11 @@ export default {
           this.loading = true;
           let data = {};
           const onSuccess = (res) => {
+            this.snackBar({
+              message: "Login successfully",
+              color: "success",
+              timeout: 4500,
+            });
             this.loading = false;
             localStorage.setItem("token", res.data.token);
             this.$router.push("document");

@@ -1,5 +1,11 @@
 <template>
   <v-container>
+    <div
+      style="color: #2d8cff; cursor: pointer"
+      @click="$router.push('add-user')"
+    >
+      Click here to Add User
+    </div>
     <div class="title mt-7 mb-7 text-center">
       Document Mangement System Interface
     </div>
@@ -156,6 +162,8 @@
 <script>
 import dayjs from "dayjs";
 import Search from "@/components/Search.vue";
+import { mapActions } from "vuex";
+
 export default {
   components: { Search },
   data() {
@@ -227,6 +235,9 @@ export default {
     this.getTags();
   },
   methods: {
+    ...mapActions({
+      snackBar: "snackBar/showToast",
+    }),
     updateTags() {
       this.docObject.tags = [];
       this.selected_tag.forEach((tag) => {
@@ -260,6 +271,11 @@ export default {
         this.loading = true;
         const onSuccess = () => {
           this.loading = false;
+          this.snackBar({
+            message: "Document successfully Add",
+            color: "success",
+            timeout: 4500,
+          });
         };
         const onFailure = () => {
           this.loading = false;
@@ -274,6 +290,12 @@ export default {
           onSuccess,
           onFailure,
           isTokenRequired: true,
+        });
+      } else {
+        this.snackBar({
+          message: "All fields are required",
+          color: "warning",
+          timeout: 4500,
         });
       }
     },
