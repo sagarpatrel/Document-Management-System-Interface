@@ -1,13 +1,7 @@
 <template>
   <div style="height: 100vh" class="d-flex justify-center align-center">
     <v-card class="" width="450px">
-      <v-card-title
-        @click="
-          $router.push({
-            name: 'document',
-          })
-        "
-      >
+      <v-card-title class="text--primary mb-4" style="font-size: 27px">
         Authentication
       </v-card-title>
       <v-container>
@@ -19,7 +13,7 @@
                 :rules="[$rules.phone]"
                 type="number"
                 v-model="mobile"
-                label="Mobile number"
+                placeholder="Mobile number"
                 outlined
               >
               </v-text-field>
