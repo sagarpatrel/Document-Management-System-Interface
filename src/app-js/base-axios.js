@@ -7,8 +7,8 @@ import { urls } from './api-urls';
 const authToken = {
     getAccessToken: () => {
         let token = {
-            accessToken: sessionStorage.getItem('token'),
-            refreshToken: sessionStorage.getItem('rtoken')
+            accessToken: localStorage.getItem('token'),
+            refreshToken: localStorage.getItem('rtoken')
         }
         return token;
     },
@@ -18,15 +18,14 @@ const authToken = {
      */
     setAccessToken: (access_token, refresh_token) => {
 
-        sessionStorage.setItem("token", access_token);
-        sessionStorage.setItem("rtoken", refresh_token);
+        localStorage.setItem("token", access_token);
+        localStorage.setItem("rtoken", refresh_token);
     },
     /**
      * Remove access token from local storage
      */
     removeAccessToken: () => {
-        sessionStorage.removeItem("token");
-
+        localStorage.removeItem("token");
     },
 
 };
@@ -55,8 +54,8 @@ axios.interceptors.request.use(
     (req) => {
         if (req.headers.authorization) {
             const { accessToken, refreshToken } = authToken.getAccessToken();
-            // console.log(accessToken);
-            if (accessToken && refreshToken) {
+            if (accessToken) {
+                // console.log(accessToken);
                 const refresh = jwtDecode(refreshToken);
                 const isRefreshExpired = dayjs.unix(refresh.exp).diff(dayjs()) < 1;
                 if (isRefreshExpired) {
@@ -82,8 +81,7 @@ axios.interceptors.response.use(
     },
     async (error) => {
         const req = error.config;
-
-        if (error.response.status === 401 && !req._retry) {
+        if (error.response === 401 && !req._retry) {
             if (error.response.data.code == "user_not_found") {
                 authToken.removeAccessToken();
                 router.push({ name: "login" });
@@ -96,7 +94,7 @@ axios.interceptors.response.use(
                     requestQueue.push({ resolve, reject });
                 })
                     .then((access_token) => {
-                        req.headers["Authorization"] = "Bearer " + access_token;
+                        req.headers["Authorization"] = access_token;
                         return axios(req);
                     })
                     .catch((error) => {
@@ -110,12 +108,12 @@ axios.interceptors.response.use(
             return new Promise(function (resolve, reject) {
                 // console.log(refreshToken);
                 axios
-                    .post(urls.auth.refreshToken, {
+                    .post(urls, {
                         refresh_token: refreshToken,
                     })
                     .then((response) => {
-                        const access_token = response.data.result.token.access;
-                        const refresh_token = response.data.result.token.refresh;
+                        const access_token = response.data.token;
+                        const refresh_token = response.data.token;
                         console.log(access_token, 'access token axios');
                         authToken.setAccessToken(access_token, refresh_token);
                         req.headers["authorization"] = "Bearer " + access_token;
@@ -148,12 +146,12 @@ const errorHandler = (error) => {
     if (error.response) {
         if (!error.response.data) {
             store.dispatch("snackBar/showToast", {
-                message: error.message,
+                message: error.data,
                 color: "E",
             });
         } else {
 
-            switch (error.response.status) {
+            switch (error.response) {
                 case 404:
                     store.dispatch("snackBar/showToast", {
                         message: 'Not found',
@@ -234,7 +232,7 @@ export default (
         onUploadProgress,
         onDownloadProgress,
     };
-
+    // console.log(config);
     if (cancel) {
         source.cancel();
         source = axios.CancelToken.source();
@@ -243,8 +241,10 @@ export default (
 
     if (isTokenRequired) {
         const { accessToken } = authToken.getAccessToken();
-        headers["authorization"] = `Bearer ${accessToken}`;
+        // console.log(accessToken);
+        headers["authorization"] = `${accessToken}`;
     }
+    // console.log(headers);
     // headers['platform'] = keys.WEB;
 
     return axios(config)
@@ -254,7 +254,7 @@ export default (
 
                 if (config.method != 'get')
                     store.dispatch("snackBar/showToast", {
-                        message: response.data.detail,
+                        message: response.data.data,
                         color: config.method === 'delete' ? "e" : 's',
                     });
             }

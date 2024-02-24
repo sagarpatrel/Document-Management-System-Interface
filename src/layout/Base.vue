@@ -7,7 +7,7 @@
 </template>
 <script>
 export default {
-  name: "authLayout",
+  name: "baseLayout",
 };
 </script>
 <style scoped>

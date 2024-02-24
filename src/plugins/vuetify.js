@@ -1,13 +1,14 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib/framework';
 
+
 Vue.use(Vuetify);
 
 export default new Vuetify({
     theme: {
         themes: {
             light: {
-                primary: "#5A7AFA",
+                primary: "#2D8CFF",
                 bg_color: '#f4f4f4',
                 table_header: "#869CF4",
                 table_header2: '#E5E7EF',
