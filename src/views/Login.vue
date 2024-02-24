@@ -1,13 +1,7 @@
 <template>
   <div style="height: 100vh" class="d-flex justify-center align-center">
     <v-card class="" width="450px">
-      <v-card-title
-        @click="
-          $router.push({
-            name: 'document',
-          })
-        "
-      >
+      <v-card-title class="text--primary mb-4" style="font-size: 27px">
         Authentication
       </v-card-title>
       <v-container>
@@ -19,7 +13,7 @@
                 :rules="[$rules.phone]"
                 type="number"
                 v-model="mobile"
-                label="Mobile number"
+                placeholder="Mobile number"
                 outlined
               >
               </v-text-field>
@@ -47,6 +41,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 export default {
   name: "LoginPage",
   data() {
@@ -59,6 +54,9 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      snackBar: "snackBar/showToast",
+    }),
     sendOtp() {
       if (this.$refs.login.validate()) {
         if (!this.otp) {
@@ -68,6 +66,11 @@ export default {
           const onSuccess = () => {
             this.loading = false;
             this.show_otp = true;
+            this.snackBar({
+              message: "OTP sent successfully",
+              color: "success",
+              timeout: 4500,
+            });
             // this.send_otp_btn = false;
           };
           const onFailure = () => {};
@@ -82,6 +85,11 @@ export default {
           this.loading = true;
           let data = {};
           const onSuccess = (res) => {
+            this.snackBar({
+              message: "Login successfully",
+              color: "success",
+              timeout: 4500,
+            });
             this.loading = false;
             localStorage.setItem("token", res.data.token);
             this.$router.push("document");

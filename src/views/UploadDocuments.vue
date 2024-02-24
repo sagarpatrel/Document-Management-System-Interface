@@ -1,9 +1,21 @@
 <template>
   <v-container>
-    <v-form>
-      <label for="">Step 1:</label>
+    <div
+      style="color: #2d8cff; cursor: pointer"
+      @click="$router.push('add-user')"
+    >
+      Click here to Add User
+    </div>
+    <div class="title mt-7 mb-7 text-center">
+      Document Mangement System Interface
+    </div>
+    <div class="search">Search</div>
+    <Search />
+    <v-form ref="form" class="mt-12">
+      <div class="search">Form</div>
+      <!-- <label for="">Step 1:</label> -->
       <v-row>
-        <v-col cols="4">
+        <v-col md="4" sm="12">
           <label for="date">Date</label>
           <v-menu
             ref="menu"
@@ -37,9 +49,10 @@
             </v-date-picker>
           </v-menu>
         </v-col>
-        <v-col cols="4">
+        <v-col md="4" sm="12">
           <label @click="getTags()" for="categories">Categories</label>
           <v-select
+            :rules="[$rules.required]"
             :items="categories"
             v-model="docObject.major_head"
             outlined
@@ -49,11 +62,12 @@
           >
           </v-select>
         </v-col>
-        <v-col cols="4">
+        <v-col md="4" sm="12">
           <label for="categories">
             {{ placeholder ? placeholder : "Select" }}
           </label>
           <v-select
+            :rules="[$rules.required]"
             v-model="docObject.minor_head"
             :items="dynamicSelect"
             outlined
@@ -63,10 +77,9 @@
           </v-select>
         </v-col>
       </v-row>
-      <!-- <v-divider> </v-divider> -->
-      <label for="">Step 2:</label>
+
       <v-row>
-        <v-col cols="4">
+        <v-col md="4" sm="12">
           <label class="text-field">Upload Documents</label>
           <label for="doc" class="add-image">
             <div v-if="!document_preview">
@@ -88,9 +101,10 @@
             style="visibility: hidden"
           />
         </v-col>
-        <v-col cols="4">
+        <v-col md="4" sm="12">
           <label for="categories">Select Document tags </label>
           <v-combobox
+            :rules="[$rules.required]"
             :items="tag"
             dense
             v-model="selected_tag"
@@ -118,7 +132,7 @@
           </v-combobox>
           <!-- {{ docObject.tags }} -->
         </v-col>
-        <v-col>
+        <v-col md="4" sm="12">
           <label for="mobile">Remarks</label>
           <v-text-field
             dense
@@ -132,21 +146,26 @@
         </v-col>
       </v-row>
     </v-form>
-    <v-btn
-      :loading="loading"
-      @click="uploadDoc()"
-      color="primary"
-      class="white--text text-capitalize"
-    >
-      <!-- width="100%" -->
-      Submit Document
-    </v-btn>
+    <div class="text-right">
+      <v-btn
+        :loading="loading"
+        @click="uploadDoc()"
+        color="primary"
+        class="white--text text-capitalize"
+      >
+        Submit Document
+      </v-btn>
+    </div>
   </v-container>
 </template>
 
 <script>
 import dayjs from "dayjs";
+import Search from "@/components/Search.vue";
+import { mapActions } from "vuex";
+
 export default {
+  components: { Search },
   data() {
     return {
       loading: false,
@@ -216,6 +235,9 @@ export default {
     this.getTags();
   },
   methods: {
+    ...mapActions({
+      snackBar: "snackBar/showToast",
+    }),
     updateTags() {
       this.docObject.tags = [];
       this.selected_tag.forEach((tag) => {
@@ -223,7 +245,7 @@ export default {
       });
     },
     remove(item) {
-      this.chips.splice(this.chips.indexOf(item), 1);
+      this.selected_tag.splice(this.selected_tag.indexOf(item), 1);
     },
 
     getTags() {
@@ -244,20 +266,38 @@ export default {
     },
 
     uploadDoc() {
-      let data = new FormData();
-      const onSuccess = () => {};
-      const onFailure = () => {};
-      this.docObject.document_date = dayjs(this.docObject.document_date).format(
-        "DD-MM-YYYY"
-      );
-      data.append("file", this.document_file);
-      data.append("data", JSON.stringify(this.docObject));
-      return this.$Axios("post", this.$apiUrl.SAVE_DOCUMENT, {
-        data,
-        onSuccess,
-        onFailure,
-        isTokenRequired: true,
-      });
+      if (this.$refs.form.validate() && this.document_file) {
+        let data = new FormData();
+        this.loading = true;
+        const onSuccess = () => {
+          this.loading = false;
+          this.snackBar({
+            message: "Document successfully Add",
+            color: "success",
+            timeout: 4500,
+          });
+        };
+        const onFailure = () => {
+          this.loading = false;
+        };
+        this.docObject.document_date = dayjs(
+          this.docObject.document_date
+        ).format("DD-MM-YYYY");
+        data.append("file", this.document_file);
+        data.append("data", JSON.stringify(this.docObject));
+        return this.$Axios("post", this.$apiUrl.SAVE_DOCUMENT, {
+          data,
+          onSuccess,
+          onFailure,
+          isTokenRequired: true,
+        });
+      } else {
+        this.snackBar({
+          message: "All fields are required",
+          color: "warning",
+          timeout: 4500,
+        });
+      }
     },
     addDocument() {
       this.document_file = this.$refs.docField.files.item(0);
@@ -268,6 +308,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.search {
+  font-size: 1.5rem;
+  color: #2d8cff;
+  font-weight: 500;
+}
 .add-image {
   border: 1px dashed black;
   display: block;
@@ -282,5 +327,9 @@ export default {
 .doc-logo {
   height: 150px;
   widows: 150px;
+}
+.title {
+  font-size: 2rem !important;
+  font-weight: 500;
 }
 </style>
